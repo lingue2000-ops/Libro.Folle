@@ -285,16 +285,27 @@ export default function App() {
       1: {
         strokes: [
           {
-            points: [{ x: 100, y: 150 }, { x: 125, y: 152 }, { x: 155, y: 160 }, { x: 195, y: 145 }, { x: 225, y: 135 }, { x: 260, y: 155 }],
+            points: [
+              { x: 0.15, y: 0.18 }, 
+              { x: 0.22, y: 0.19 }, 
+              { x: 0.35, y: 0.21 }, 
+              { x: 0.48, y: 0.17 }, 
+              { x: 0.62, y: 0.15 }, 
+              { x: 0.75, y: 0.22 }
+            ],
             color: '#FF4D00',
             width: 5,
-            tool: 'pen'
+            type: 'pen'
           },
           {
-            points: [{ x: 140, y: 220 }, { x: 210, y: 220 }, { x: 290, y: 225 }],
-            color: '#FFD700',
-            width: 14,
-            tool: 'highlighter'
+            points: [
+              { x: 0.20, y: 0.32 }, 
+              { x: 0.50, y: 0.32 }, 
+              { x: 0.80, y: 0.33 }
+            ],
+            color: '#FFD70044', // semi-transparent highlighter yellow
+            width: 18,
+            type: 'highlighter'
           }
         ],
         redoStack: []
