@@ -44,41 +44,52 @@ export default function DrawingCanvas({
   isPanning,
 }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const backgroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const currentPointsRef = useRef<TrackPoint[]>([]);
 
-  // Redraw whenever strokes change or dimensions resize
+  // Draw the background paper pattern whenever paperStyle, width, or height changes
   useEffect(() => {
-    drawAll();
-  }, [strokes, width, height, paperStyle]);
-
-  const drawAll = () => {
-    const canvas = canvasRef.current;
+    const canvas = backgroundCanvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas dimensions based on scale & device pixel ratio
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // 1. Clear Canvas (with overlay mode)
     ctx.clearRect(0, 0, width, height);
 
-    // 2. Draw Paper Background (lines / grid) if not pdf
     if (paperStyle === 'lines') {
       drawLinesPaper(ctx);
     } else if (paperStyle === 'grid') {
       drawGridPaper(ctx);
     } else if (paperStyle === 'blank') {
-      // Just keep blank (transparent or soft cream)
       ctx.fillStyle = 'rgba(255, 253, 246, 0.4)'; // subtle antique warm paper hint
       ctx.fillRect(0, 0, width, height);
     }
+  }, [width, height, paperStyle]);
 
-    // 3. Draw All Vector Strokes
+  // Redraw interactive strokes whenever strokes, width, or height changes
+  useEffect(() => {
+    drawStrokesOnly();
+  }, [strokes, width, height]);
+
+  const drawStrokesOnly = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+
+    ctx.clearRect(0, 0, width, height);
+
     strokes.forEach((stroke) => {
       drawStroke(ctx, stroke);
     });
@@ -316,7 +327,13 @@ export default function DrawingCanvas({
 
   return (
     <div className="relative group/canvas select-none" style={{ width, height }}>
-      {/* Underlying layout wrapper */}
+      {/* Background paper canvas layer (read-only patterns) */}
+      <canvas
+        ref={backgroundCanvasRef}
+        style={{ width, height }}
+        className="absolute inset-0 z-10 block pointer-events-none select-none"
+      />
+      {/* Interactive drawing and stroke annotation layer */}
       <canvas
         id="annotation-drawing-canvas-layer"
         ref={canvasRef}
